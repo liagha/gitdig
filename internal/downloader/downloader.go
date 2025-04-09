@@ -2,14 +2,13 @@ package downloader
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"sync"
 	"time"
 
-	"github.com/liagha/grawl/internal/display"
-	"github.com/liagha/grawl/internal/github"
+	"github.com/liagha/gitdig/internal/display"
+	"github.com/liagha/gitdig/internal/github"
 )
 
 type Stats struct {
@@ -86,12 +85,12 @@ func (d *Downloader) downloadDirectory(owner, repo, branch, dirPath, localDir st
 
 	for _, content := range contents {
 		if content.Type == "file" {
-			d.sem <- struct{}{} // Acquire semaphore
+			d.sem <- struct{}{}
 			d.wg.Add(1)
 
-			go func(content github.GitHubContent) {
+			go func(content github.Content) {
 				defer d.wg.Done()
-				defer func() { <-d.sem }() // Release semaphore
+				defer func() { <-d.sem }()
 
 				filePath := filepath.Join(localDir, content.Name)
 				size, err := d.downloadFile(content.DownloadURL, filePath)
@@ -136,18 +135,26 @@ func (d *Downloader) downloadFile(url, filePath string) (int64, error) {
 		return 0, err
 	}
 
-	// Create the file
 	out, err := os.Create(filePath)
 	if err != nil {
 		return 0, fmt.Errorf("failed to create file: %w", err)
 	}
-	defer out.Close()
 
-	// Write the data to file
+	// Use a named return to capture close error properly
+	var writeErr error
+	defer func() {
+		if cerr := out.Close(); cerr != nil {
+			if writeErr == nil {
+				writeErr = fmt.Errorf("failed to close file: %w", cerr)
+			}
+		}
+	}()
+
 	n, err := out.Write(data)
 	if err != nil {
-		return 0, fmt.Errorf("failed to write file data: %w", err)
+		writeErr = fmt.Errorf("failed to write file data: %w", err)
+		return 0, writeErr
 	}
 
-	return int64(n), nil
+	return int64(n), writeErr
 }

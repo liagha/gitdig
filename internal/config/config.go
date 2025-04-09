@@ -1,8 +1,8 @@
 package config
 
 const (
-	AppName    = "github-dir-dl"
-	AppVersion = "1.0.0"
+	AppName    = "gitdig"
+	AppVersion = "0.0.1"
 )
 
 type Config struct {

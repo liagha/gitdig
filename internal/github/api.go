@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/liagha/grawl/internal/config"
-	"github.com/liagha/grawl/internal/display"
+	"github.com/liagha/gitdig/internal/config"
+	"github.com/liagha/gitdig/internal/display"
 )
 
 type Content struct {
@@ -25,7 +25,7 @@ var client = &http.Client{
 	Timeout: 30 * time.Second,
 }
 
-func GetContents(apiURL, token string) ([]Content, error) {
+func GetContents(apiURL, token string) (contents []Content, err error) {
 	req, err := http.NewRequest("GET", apiURL, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
@@ -41,7 +41,11 @@ func GetContents(apiURL, token string) ([]Content, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if cerr := resp.Body.Close(); cerr != nil && err == nil {
+			err = fmt.Errorf("failed to close response body: %w", cerr)
+		}
+	}()
 
 	if resp.StatusCode == http.StatusForbidden || resp.StatusCode == http.StatusTooManyRequests {
 		rateLimitReset := resp.Header.Get("X-RateLimit-Reset")
@@ -62,7 +66,6 @@ func GetContents(apiURL, token string) ([]Content, error) {
 		return nil, fmt.Errorf("GitHub API error: %s - %s", resp.Status, string(body))
 	}
 
-	var contents []Content
 	if err := json.NewDecoder(resp.Body).Decode(&contents); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
@@ -131,7 +134,7 @@ func parseURL(rawURL string) (owner, repo, branch, path string, err error) {
 	return owner, repo, branch, path, nil
 }
 
-func DownloadFileContent(url, token string) ([]byte, error) {
+func DownloadFileContent(url, token string) (data []byte, err error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create download request: %w", err)
@@ -147,13 +150,17 @@ func DownloadFileContent(url, token string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute download request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if cerr := resp.Body.Close(); cerr != nil && err == nil {
+			err = fmt.Errorf("failed to close response body: %w", cerr)
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("HTTP error: %s", resp.Status)
 	}
 
-	data, err := io.ReadAll(resp.Body)
+	data, err = io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
