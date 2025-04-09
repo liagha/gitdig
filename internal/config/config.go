@@ -1,14 +1,5 @@
 package config
 
-const (
-	AppName    = "gitdig"
-	AppVersion = "0.0.1"
-)
-
-type Config struct {
-	Token string
-}
-
 type AppFlags struct {
 	URL         string
 	Token       string
@@ -16,4 +7,16 @@ type AppFlags struct {
 	Recursive   bool
 	Concurrency int
 	Verbose     bool
+	ZipOutput   bool
+	Preview     bool
+	Update      bool
+	ListFile    string
+	Retries     int
+	User        string
+	Interactive bool
 }
+
+const (
+	AppName    = "gitdig"
+	AppVersion = "1.1.0"
+)

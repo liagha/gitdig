@@ -19,14 +19,16 @@ type Content struct {
 	Path        string `json:"path"`
 	Type        string `json:"type"`
 	DownloadURL string `json:"download_url"`
+	Size        int64  `json:"size"`
+	SHA         string `json:"sha"`
 }
 
 var client = &http.Client{
 	Timeout: 30 * time.Second,
 }
 
-func GetContents(apiURL, token string) (contents []Content, err error) {
-	req, err := http.NewRequest("GET", apiURL, nil)
+func createRequest(method, url, token string) (*http.Request, error) {
+	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
@@ -36,6 +38,14 @@ func GetContents(apiURL, token string) (contents []Content, err error) {
 	}
 
 	req.Header.Set("User-Agent", config.AppName+"/"+config.AppVersion)
+	return req, nil
+}
+
+func GetContents(apiURL, token string) (contents []Content, err error) {
+	req, err := createRequest("GET", apiURL, token)
+	if err != nil {
+		return nil, err
+	}
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -135,16 +145,10 @@ func parseURL(rawURL string) (owner, repo, branch, path string, err error) {
 }
 
 func DownloadFileContent(url, token string) (data []byte, err error) {
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := createRequest("GET", url, token)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create download request: %w", err)
+		return nil, err
 	}
-
-	if token != "" {
-		req.Header.Set("Authorization", "token "+token)
-	}
-
-	req.Header.Set("User-Agent", config.AppName+"/"+config.AppVersion)
 
 	resp, err := client.Do(req)
 	if err != nil {
