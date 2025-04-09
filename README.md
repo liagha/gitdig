@@ -1,8 +1,6 @@
-# gitdig
+# gitdig 🕳️
 
 <div align="center">
-
-![gitdig Logo](https://raw.githubusercontent.com/liagha/gitdig/main/assets/logo.png)
 
 **A lightweight and blazing-fast CLI tool for downloading GitHub directories**
 
