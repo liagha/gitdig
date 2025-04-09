@@ -1,7 +1,5 @@
 # gitdig 🕳️
 
-<div align="center">
-
 **A lightweight and blazing-fast CLI tool for downloading GitHub directories**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
@@ -27,10 +25,6 @@
 - 🧩 Clean and **composable command-line interface**
 
 ## 🚀 Installation
-
-### Binary Releases
-
-Download pre-built binaries from the [releases page](https://github.com/liagha/gitdig/releases).
 
 ### Using Go Install
 
