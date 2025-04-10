@@ -47,6 +47,7 @@ go builds -o gitdig
 # Optionally install globally
 go install
 ```
+### or using the Build Script:
 ```bash
 # Build current platform, both binary and archive
 ./build.sh
