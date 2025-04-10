@@ -47,6 +47,19 @@ go builds -o gitdig
 # Optionally install globally
 go install
 ```
+```bash
+# Build current platform, both binary and archive
+./build.sh
+
+# Build all platforms, archives only
+./build.sh all --format=archive
+
+# Build specific platforms with binaries only
+./build.sh linux/amd64 darwin/arm64 --format=binary
+
+# Custom platform combination with both outputs
+./build.sh windows/amd64 linux/arm64 --format=all
+```
 
 ## 📋 Usage
 
@@ -61,16 +74,32 @@ gitdig
 ## 🔧 Command-Line Options
 
 ```
-Usage: gitdig [options] [username/repo/path]
+Usage: gitdig [Options]
 
 Options:
-  -url, -u string        GitHub repository path (URL or user/repo/path format)
-  -token, -t string      GitHub personal access token for authentication
-  -output, -o string     Output directory (default: last part of path)
-  -recursive, -r         Download directories recursively (default: false)
-  -concurrency, -n int   Number of concurrent downloads (default: 5)
-  -verbose, -v           Enable verbose output (default: false)
-  -help, -h              Display help information
+  -c int
+        Number of concurrent downloads (default 5)
+  -i    Interactive mode for selecting repositories
+  -list string
+        File containing list of repositories to download
+  -o string
+        Output directory
+  -preview
+        Preview what would be downloaded without downloading
+  -r    Download directories recursively (default true)
+  -retries int
+        Number of retries for failed downloads (default 3)
+  -token string
+        GitHub API token for authentication
+  -u string
+        GitHub repository URL or path (can be specified multiple times)
+  -update
+        Only download new or changed files
+  -user string
+        GitHub username or organization for interactive repository selection
+  -v    Verbose output
+  -zip
+        Create ZIP archive instead of extracting files
 ```
 
 ## 📖 Examples
