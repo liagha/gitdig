@@ -42,7 +42,7 @@ git clone https://github.com/liagha/gitdig.git
 cd gitdig
 
 # Build the project
-go build -o gitdig
+go builds -o gitdig
 
 # Optionally install globally
 go install
